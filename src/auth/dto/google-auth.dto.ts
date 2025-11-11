@@ -4,8 +4,7 @@ import { createZodDto } from 'nestjs-zod';
 // Schema untuk Google OAuth User Profile
 export const GoogleUserSchema = z.object({
   email: z.string().email(),
-  firstName: z.string(),
-  lastName: z.string(),
+  fullName: z.string(),
   picture: z.string().url().optional(),
   googleId: z.string(),
 });
