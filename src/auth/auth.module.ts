@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
@@ -8,7 +8,7 @@ import { GoogleStrategy } from './strategies/google-oauth.strategy';
 import { JwtStrategy } from './strategies/jwt-strategy';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { APP_GUARD } from '@nestjs/core';
-import { PrismaModule } from 'src/prisma/prisma.module';
+import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
   imports: [
@@ -17,9 +17,9 @@ import { PrismaModule } from 'src/prisma/prisma.module';
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
-        const secret = configService.get('JWT_SECRET');
-        const expiresIn = configService.get('JWT_EXPIRES_IN') || '7d';
+      useFactory: (configService: ConfigService): JwtModuleOptions => {
+        const secret = configService.get<string>('JWT_SECRET');
+        const expiresIn = configService.get<string>('JWT_EXPIRES_IN');
 
         if (!secret) {
           throw new Error('JWT_SECRET is not defined in environment variables');
@@ -28,7 +28,7 @@ import { PrismaModule } from 'src/prisma/prisma.module';
         return {
           secret,
           signOptions: { expiresIn },
-        };
+        } as unknown as JwtModuleOptions;
       },
     }),
   ],
@@ -44,5 +44,4 @@ import { PrismaModule } from 'src/prisma/prisma.module';
   ],
   exports: [AuthService],
 })
-
 export class AuthModule {}

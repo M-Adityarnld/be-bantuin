@@ -10,28 +10,14 @@ import {
 import { Server, Socket } from 'socket.io';
 import { ChatsService } from './chats.service';
 import { AuthService } from '../auth/auth.service'; // Untuk validasi token
-import { NotificationsService } from 'src/notifications/notifications.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import type { SendMessageDto } from './dto/chat.dto';
+import type { User } from '@prisma/client';
 
-// Autentikasi user dari socket
-async function authenticateSocket(
-  socket: Socket,
-  authService: AuthService,
-): Promise<any> {
-  // Mengembalikan User
-  const token = socket.handshake.auth.token;
-  if (!token) {
-    throw new Error('Authentication failed: No token provided');
-  }
-  try {
-    const user = await authService.validateUser(token.sub); // Ganti ini ke validasi JWT
-    if (!user) {
-      throw new Error('Authentication failed: Invalid user');
-    }
-    return user; // Sukses
-  } catch (err) {
-    throw new Error(`Authentication failed: ${err.message}`);
-  }
+interface SocketWithAuth extends Socket {
+  data: {
+    user: User;
+  };
 }
 
 @WebSocketGateway({
@@ -42,7 +28,6 @@ async function authenticateSocket(
 export class ChatsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
-
   private connectedUsers: Map<string, Socket> = new Map();
 
   constructor(
@@ -54,26 +39,26 @@ export class ChatsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   /**
    * Handle koneksi baru
    */
-  async handleConnection(client: Socket) {
+  async handleConnection(client: SocketWithAuth) {
     try {
       // 1. Autentikasi user dari token
-      const token = client.handshake.auth.token;
+      const token = client.handshake.auth.token as string;
       if (!token) throw new Error('No token provided');
 
       // 2. Gunakan AuthService untuk validasi JWT
       // Ini jauh lebih clean dan terenkapsulasi
       const user = await this.authService.validateUserFromJwt(token);
+      if (!user) throw new Error('Invalid user');
 
       // 3. Simpan data user di socket
       client.data.user = user;
       this.connectedUsers.set(user.id, client);
-      console.log(`Client connected: ${user.id}`);
+      void client.join(user.id);
 
-      // 4. [Best Practice] Join 'room' pribadi user
-      // Ini memungkinkan kita mengirim notif ke userId
-      client.join(user.id);
+      console.log(`Client connected: ${user.id}`);
     } catch (error) {
-      console.error('Socket Auth Failed:', error.message);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      console.error('Socket Auth Failed:', message);
       client.disconnect(true);
     }
   }
@@ -81,7 +66,7 @@ export class ChatsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   /**
    * Handle diskoneksi
    */
-  handleDisconnect(client: Socket) {
+  handleDisconnect(client: SocketWithAuth) {
     if (client.data.user) {
       this.connectedUsers.delete(client.data.user.id);
       console.log(`Client disconnected: ${client.data.user.id}`);
@@ -94,7 +79,7 @@ export class ChatsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('sendMessage')
   async handleSendMessage(
     @MessageBody() dto: SendMessageDto,
-    @ConnectedSocket() client: Socket,
+    @ConnectedSocket() client: SocketWithAuth,
   ) {
     const sender = client.data.user;
 
@@ -133,7 +118,7 @@ export class ChatsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('getHistory')
   async handleGetHistory(
     @MessageBody() conversationId: string,
-    @ConnectedSocket() client: Socket,
+    @ConnectedSocket() client: SocketWithAuth,
   ) {
     const userId = client.data.user.id;
     const history = await this.chatService.getMessageHistory(

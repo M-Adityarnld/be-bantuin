@@ -30,7 +30,11 @@ export class DisputesController {
     @Param('orderId') orderId: string,
     @Body() dto: CreateDisputeDto,
   ) {
-    const dispute = await this.disputesService.openDispute(userId, orderId, dto);
+    const dispute = await this.disputesService.openDispute(
+      userId,
+      orderId,
+      dto,
+    );
     return {
       success: true,
       message: 'Sengketa berhasil dibuka. Admin akan segera meninjau.',
@@ -68,7 +72,11 @@ export class DisputesController {
     @Param('disputeId') disputeId: string,
     @Body() dto: AddDisputeMessageDto,
   ) {
-    const message = await this.disputesService.addMessage(userId, disputeId, dto);
+    const message = await this.disputesService.addMessage(
+      userId,
+      disputeId,
+      dto,
+    );
     return {
       success: true,
       message: 'Pesan terkirim',

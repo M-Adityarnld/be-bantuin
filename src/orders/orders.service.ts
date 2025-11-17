@@ -6,16 +6,15 @@ import {
 import { OnEvent } from '@nestjs/event-emitter';
 import { PrismaService } from '../prisma/prisma.service';
 import { PaymentsService } from '../payments/payments.service';
-import { WalletsService } from 'src/wallets/wallets.service';
+import { WalletsService } from '../wallets/wallets.service';
 import type {
   CreateOrderDto,
   DeliverOrderDto,
-  RequestRevisionDto,
   OrderFilterDto,
   CancelOrderDto,
 } from './dto/order.dto';
-import { Prisma } from '@prisma/client';
-import { NotificationsService } from 'src/notifications/notifications.service';
+import { Order, Service, Prisma } from '@prisma/client';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class OrdersService {
@@ -132,7 +131,7 @@ export class OrdersService {
     orderId: string,
     buyerId: string,
   ): Promise<{
-    order: any;
+    order: Order;
     message: string;
     paymentToken: string;
     paymentRedirectUrl: string;
@@ -163,8 +162,8 @@ export class OrdersService {
     return {
       order: updated,
       message: 'Silakan lakukan pembayaran untuk melanjutkan pesanan',
-      paymentToken: paymentDetails.token,
-      paymentRedirectUrl: paymentDetails.redirectUrl,
+      paymentToken: paymentDetails.token!,
+      paymentRedirectUrl: paymentDetails.redirectUrl!,
     };
   }
 
@@ -177,7 +176,7 @@ export class OrdersService {
   @OnEvent('payment.settled')
   async handlePaymentSuccess(payload: {
     orderId: string;
-    transactionData: any;
+    transactionData: Record<string, unknown>;
   }) {
     const { orderId, transactionData } = payload;
 
@@ -198,7 +197,7 @@ export class OrdersService {
     try {
       await this.prisma.$transaction(async (tx) => {
         // Update order status
-        const updatedOrder = await tx.order.update({
+        await tx.order.update({
           where: { id: orderId },
           data: {
             status: 'paid_escrow',
@@ -207,12 +206,15 @@ export class OrdersService {
           },
         });
 
+        const txId = transactionData.transaction_id as string;
+        const pType = transactionData.payment_type as string;
+
         await tx.payment.update({
           where: { orderId: orderId },
           data: {
             status: 'settlement',
-            transactionId: transactionData.transaction_id,
-            paymentType: transactionData.payment_type,
+            transactionId: txId,
+            paymentType: pType,
           },
         });
 
@@ -230,12 +232,11 @@ export class OrdersService {
         });
       });
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
       console.error(
         `[PaymentSettled] Failed to process order ${orderId}:`,
-        error,
+        message,
       );
-      // Jika gagal, event ini perlu di-retry (bisa menggunakan queue/antrian)
-      // Untuk saat ini, kita log error-nya
     }
   }
 
@@ -339,11 +340,7 @@ export class OrdersService {
    * Mengubah status dari DELIVERED ke REVISION
    * Validasi jumlah revisi yang tersisa
    */
-  async requestRevision(
-    orderId: string,
-    buyerId: string,
-    dto: RequestRevisionDto,
-  ) {
+  async requestRevision(orderId: string, buyerId: string) {
     const order = await this.findOneWithAccess(orderId, buyerId, 'buyer');
 
     if (order.status !== 'delivered') {
@@ -469,7 +466,7 @@ export class OrdersService {
     userId: string,
     role: 'buyer' | 'seller',
     dto: CancelOrderDto,
-  ) {
+  ): Promise<Order & { refunded: boolean }> {
     const order = await this.prisma.order.findFirst({
       where: {
         id: orderId,
@@ -493,7 +490,7 @@ export class OrdersService {
 
     // Jika order sudah dibayar, perlu refund
     const needsRefund = order.isPaid;
-    let cancelled;
+    let cancelled: Order;
 
     // Gunakan transaction jika perlu refund
     if (needsRefund) {
@@ -688,7 +685,7 @@ export class OrdersService {
     orderId: string,
     userId: string,
     requiredRole: 'buyer' | 'seller',
-  ) {
+  ): Promise<Order & { service: Service }> {
     const order = await this.prisma.order.findFirst({
       where: {
         id: orderId,

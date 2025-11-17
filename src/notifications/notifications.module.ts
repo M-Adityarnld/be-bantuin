@@ -8,5 +8,4 @@ import { NotificationsController } from './notifications.controller';
   providers: [NotificationsService], // Daftarkan Service
   exports: [NotificationsService], // Ekspor Service
 })
-
 export class NotificationsModule {}

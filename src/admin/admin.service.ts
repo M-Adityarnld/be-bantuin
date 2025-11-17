@@ -4,9 +4,9 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { WalletsService } from 'src/wallets/wallets.service';
-import type { ResolveDisputeDto } from 'src/disputes/dto/resolve-dispute.dto';
-import { NotificationsService } from 'src/notifications/notifications.service';
+import { WalletsService } from '../wallets/wallets.service';
+import type { ResolveDisputeDto } from '../disputes/dto/resolve-dispute.dto';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class AdminService {
@@ -49,7 +49,7 @@ export class AdminService {
     // Buat notifikasi untuk Seller
     await this.notificationService.create({
       userId: payout.userId,
-      content: `Penarikan dana Anda sebesar Rp ${payout.amount} telah disetujui.`,
+      content: `Penarikan dana Anda sebesar Rp ${payout.amount.toNumber()} telah disetujui.`,
       link: `/wallet/payouts`,
       type: 'WALLET',
     });

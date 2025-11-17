@@ -24,4 +24,7 @@ async function bootstrap() {
   console.log(`Server is running on: http://localhost:${port}`);
 }
 
-bootstrap();
+bootstrap().catch((err) => {
+  console.error('Unhandled error during bootstrap:', err);
+  process.exit(1);
+});

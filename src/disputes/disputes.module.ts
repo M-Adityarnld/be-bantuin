@@ -6,5 +6,4 @@ import { DisputesService } from './disputes.service';
   controllers: [DisputesController],
   providers: [DisputesService],
 })
-
 export class DisputesModule {}

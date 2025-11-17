@@ -6,6 +6,12 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import type { CreateConversationDto } from './dto/chat.dto';
 import type { SendMessageDto } from './dto/chat.dto';
+import type { PrismaClient } from '@prisma/client';
+
+type PrismaTx = Omit<
+  PrismaClient,
+  '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'
+>;
 
 @Injectable()
 export class ChatsService {
@@ -84,11 +90,7 @@ export class ChatsService {
   /**
    * [Internal] Helper untuk menyimpan pesan di dalam transaksi
    */
-  async saveMessageInTx(
-    tx: any, // Prisma Transaction Client
-    senderId: string,
-    dto: SendMessageDto,
-  ) {
+  async saveMessageInTx(tx: PrismaTx, senderId: string, dto: SendMessageDto) {
     const { conversationId, content } = dto;
 
     // 1. Simpan pesan

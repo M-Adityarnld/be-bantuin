@@ -6,7 +6,7 @@ export const CreateReviewSchema = z.object({
     .int()
     .min(1, { message: 'Rating minimal 1 bintang' })
     .max(5, { message: 'Rating maksimal 5 bintang' }),
-  
+
   comment: z
     .string()
     .min(10, { message: 'Komentar minimal 10 karakter' })

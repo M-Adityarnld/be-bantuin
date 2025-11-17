@@ -9,5 +9,4 @@ import { AuthModule } from '../auth/auth.module';
   providers: [ChatsGateway, ChatsService],
   controllers: [ChatsController],
 })
-
 export class ChatsModule {}

@@ -28,7 +28,7 @@ export class PaymentsService {
     this.snap = new midtransClient.Snap({
       isProduction: false, // Ganti ke true di production
       serverKey: this.midtransServerKey,
-      clientKey: this.configService.get<string>('MIDTRANS_CLIENT_KEY'),
+      clientKey: this.configService.get<string>('MIDTRANS_CLIENT_KEY')!,
     });
   }
 
@@ -74,7 +74,7 @@ export class PaymentsService {
       const { token, redirect_url } = transaction;
 
       // Simpan/Update payment record di DB
-      const payment = await this.prisma.payment.upsert({
+      await this.prisma.payment.upsert({
         where: { orderId: order.id },
         update: {
           amount: order.price,
@@ -102,15 +102,14 @@ export class PaymentsService {
    * Memproses Webhook dari Midtrans
    * PENTING: Idempotency & Signature Validation
    */
-  async handlePaymentWebhook(payload: any) {
-    const {
-      order_id,
-      transaction_status,
-      transaction_id,
-      status_code,
-      gross_amount,
-      signature_key,
-    } = payload;
+  async handlePaymentWebhook(payload: Record<string, unknown>) {
+    const order_id = payload.order_id as string;
+    const transaction_status = payload.transaction_status as string;
+    const transaction_id = payload.transaction_id as string;
+    const status_code = payload.status_code as string;
+    const gross_amount = payload.gross_amount as string;
+    const signature_key = payload.signature_key as string;
+    const payment_type = payload.payment_type as string;
 
     // 1. Verifikasi Signature Key (KEAMANAN KRITIS)
     const expectedSignature = this.verifySignature(
@@ -166,7 +165,7 @@ export class PaymentsService {
       data: {
         status: updatedStatus,
         transactionId: transaction_id,
-        paymentType: payload.payment_type,
+        paymentType: payment_type,
       },
     });
 

@@ -5,6 +5,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import type { Prisma } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
@@ -115,7 +116,7 @@ export class UsersService {
     return updatedUser;
   }
 
-  async updateProfile(userId: string, updateData: any) {
+  async updateProfile(userId: string, updateData: Prisma.UserUpdateInput) {
     // Verify user exists
     await this.findById(userId);
 

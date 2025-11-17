@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { OrdersController } from './orders.controller';
-import { PaymentsModule } from 'src/payments/payments.module';
+import { PaymentsModule } from '../payments/payments.module';
 
 /**
  * Orders Module
@@ -30,5 +30,4 @@ import { PaymentsModule } from 'src/payments/payments.module';
   providers: [OrdersService],
   exports: [OrdersService], // Export untuk digunakan di modules lain (Reviews, Disputes)
 })
-
 export class OrdersModule {}

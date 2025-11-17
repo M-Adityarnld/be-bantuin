@@ -7,8 +7,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import type { Prisma, Wallet } from '@prisma/client';
-import type { PrismaClient } from '@prisma/client';
+import type { Wallet, PrismaClient } from '@prisma/client';
 import type { CreatePayoutAccountDto } from './dto/payout-account.dto';
 import type { CreatePayoutRequestDto } from './dto/payout-request.dto';
 
@@ -261,8 +260,10 @@ export class WalletsService {
       return transaction;
     } catch (error) {
       console.error('Error in createTransaction:', error);
+      // PERBAIKAN: Tangani error dengan aman
+      const message = error instanceof Error ? error.message : 'Unknown error';
       throw new InternalServerErrorException(
-        `Gagal memproses transaksi: ${error.message}`,
+        `Gagal memproses transaksi: ${message}`,
       );
     }
   }

@@ -7,6 +7,7 @@ import { GetUser } from './decorators/get-user.decorator';
 import type { Response, Request } from 'express';
 import { ConfigService } from '@nestjs/config';
 import type { User } from '@prisma/client';
+import { GoogleUserDto } from './dto/google-auth.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -27,12 +28,12 @@ export class AuthController {
   @UseGuards(GoogleAuthGuard)
   async googleAuthRedirect(@Req() req: Request, @Res() res: Response) {
     try {
-      const googleUser = req.user as any;
+      const googleUser = req.user as GoogleUserDto;
 
       const result = await this.authService.googleLogin({
         email: googleUser.email,
         fullName: googleUser.fullName,
-        picture: googleUser.profilePicture,
+        picture: googleUser.picture,
         googleId: googleUser.googleId,
         nim: googleUser.nim,
         major: googleUser.major,
@@ -56,7 +57,7 @@ export class AuthController {
 
   @Get('profile')
   @UseGuards(JwtAuthGuard)
-  async getProfile(@GetUser() user: User) {
+  getProfile(@GetUser() user: User) {
     return {
       statusCode: 200,
       message: 'Profile retrieved successfully',
@@ -82,9 +83,9 @@ export class AuthController {
 
   @Post('logout')
   @UseGuards(JwtAuthGuard)
-  async logout(@GetUser() user: User) {
-    // Jika Anda menggunakan refresh token atau blacklist,
-    // tambahkan logic di sini untuk invalidate token
+  logout() {
+    // Guard sudah memastikan user terautentikasi.
+    // Jika logic logout tidak butuh data user, hapus saja.
     return {
       statusCode: 200,
       message: 'Logged out successfully',

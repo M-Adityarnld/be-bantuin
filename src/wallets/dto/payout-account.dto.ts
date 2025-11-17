@@ -2,7 +2,9 @@ import { z } from 'zod';
 
 export const CreatePayoutAccountSchema = z.object({
   bankName: z.string().nonempty({ message: 'Nama bank wajib diisi' }),
-  accountName: z.string().nonempty({ message: 'Nama pemilik rekening wajib diisi' }),
+  accountName: z
+    .string()
+    .nonempty({ message: 'Nama pemilik rekening wajib diisi' }),
   accountNumber: z
     .string()
     .nonempty({ message: 'Nomor rekening wajib diisi' })

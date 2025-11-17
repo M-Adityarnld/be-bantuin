@@ -39,5 +39,4 @@ import { ChatsModule } from './chats/chats.module';
   controllers: [AppController],
   providers: [AppService, PrismaService],
 })
-
 export class AppModule {}

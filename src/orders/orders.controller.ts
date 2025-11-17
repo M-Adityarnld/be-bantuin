@@ -15,10 +15,10 @@ import { GetUser } from '../auth/decorators/get-user.decorator';
 import type {
   CreateOrderDto,
   DeliverOrderDto,
-  RequestRevisionDto,
   OrderFilterDto,
   CancelOrderDto,
 } from './dto/order.dto';
+import { Order } from '@prisma/client';
 
 @Controller('orders')
 @UseGuards(JwtAuthGuard)
@@ -37,7 +37,10 @@ export class OrdersController {
     @GetUser('id') buyerId: string,
     @Body() createOrderDto: CreateOrderDto,
   ) {
-    const order = await this.ordersService.create(buyerId, createOrderDto);
+    const order: Order = await this.ordersService.create(
+      buyerId,
+      createOrderDto,
+    );
 
     return {
       success: true,
@@ -125,13 +128,8 @@ export class OrdersController {
   async requestRevision(
     @Param('id') orderId: string,
     @GetUser('id') buyerId: string,
-    @Body() revisionDto: RequestRevisionDto,
   ) {
-    const order = await this.ordersService.requestRevision(
-      orderId,
-      buyerId,
-      revisionDto,
-    );
+    const order = await this.ordersService.requestRevision(orderId, buyerId);
 
     return {
       success: true,
@@ -176,12 +174,13 @@ export class OrdersController {
     @GetUser('id') buyerId: string,
     @Body() cancelDto: CancelOrderDto,
   ) {
-    const result = await this.ordersService.cancelOrder(
-      orderId,
-      buyerId,
-      'buyer',
-      cancelDto,
-    );
+    const result: Order & { refunded: boolean } =
+      await this.ordersService.cancelOrder(
+        orderId,
+        buyerId,
+        'buyer',
+        cancelDto,
+      );
 
     return {
       success: true,
@@ -204,12 +203,13 @@ export class OrdersController {
     @GetUser('id') sellerId: string,
     @Body() cancelDto: CancelOrderDto,
   ) {
-    const result = await this.ordersService.cancelOrder(
-      orderId,
-      sellerId,
-      'seller',
-      cancelDto,
-    );
+    const result: Order & { refunded: boolean } =
+      await this.ordersService.cancelOrder(
+        orderId,
+        sellerId,
+        'seller',
+        cancelDto,
+      );
 
     return {
       success: true,
@@ -246,7 +246,7 @@ export class OrdersController {
    */
   @Get(':id')
   async findOne(@Param('id') orderId: string, @GetUser('id') userId: string) {
-    const order = await this.ordersService.findOne(orderId, userId);
+    const order: Order = await this.ordersService.findOne(orderId, userId);
 
     return {
       success: true,

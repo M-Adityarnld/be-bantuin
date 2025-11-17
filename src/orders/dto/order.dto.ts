@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 /**
  * Schema untuk membuat pesanan baru
- * 
+ *
  * Ketika pembeli ingin memesan jasa, mereka perlu memberikan informasi
  * tentang apa yang mereka butuhkan (requirements), file pendukung jika ada,
  * dan deadline yang diharapkan. Harga akan diambil dari service terkait.
@@ -27,7 +27,7 @@ export const CreateOrderSchema = z.object({
 
 /**
  * Schema untuk mengirimkan hasil pekerjaan
- * 
+ *
  * Penyedia jasa menggunakan ini ketika sudah selesai mengerjakan
  * dan siap mengirimkan deliverable kepada pembeli
  */
@@ -45,7 +45,7 @@ export const DeliverOrderSchema = z.object({
 
 /**
  * Schema untuk meminta revisi
- * 
+ *
  * Pembeli menggunakan ini jika hasil kerja belum sesuai harapan
  * dan memerlukan perbaikan
  */
@@ -63,7 +63,7 @@ export const RequestRevisionSchema = z.object({
 
 /**
  * Schema untuk filter dan pencarian order
- * 
+ *
  * Digunakan oleh pembeli dan penyedia jasa untuk melihat
  * daftar pesanan mereka dengan berbagai kriteria
  */
@@ -105,7 +105,7 @@ export const OrderFilterSchema = z.object({
 
 /**
  * Schema untuk membatalkan order
- * 
+ *
  * Baik pembeli maupun penyedia jasa bisa membatalkan order
  * dalam kondisi tertentu dengan memberikan alasan
  */
@@ -118,7 +118,7 @@ export const CancelOrderSchema = z.object({
 
 /**
  * Schema untuk membuka dispute
- * 
+ *
  * Ketika ada masalah serius yang tidak bisa diselesaikan
  * secara langsung, salah satu pihak bisa membuka dispute
  */
@@ -136,7 +136,7 @@ export const CreateDisputeSchema = z.object({
 
 /**
  * Schema untuk response pembayaran dari payment gateway
- * 
+ *
  * Ini adalah data yang diterima dari webhook Midtrans/Xendit
  * setelah pembayaran diproses
  */

@@ -8,7 +8,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import type { CreateReviewDto } from './dto/create-review.dto';
 import type { RespondReviewDto } from './dto/respond-review.dto';
 import type { PrismaClient } from '@prisma/client';
-import { NotificationsService } from 'src/notifications/notifications.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class ReviewsService {

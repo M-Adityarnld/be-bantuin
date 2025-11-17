@@ -10,9 +10,9 @@ import {
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { AdminGuard } from './guards/admin.guard'; 
+import { AdminGuard } from './guards/admin.guard';
 import type { RejectPayoutDto } from './dto/reject-payout.dto';
-import type { ResolveDisputeDto } from 'src/disputes/dto/resolve-dispute.dto'; 
+import type { ResolveDisputeDto } from '../disputes/dto/resolve-dispute.dto';
 import { GetUser } from '../auth/decorators/get-user.decorator';
 
 @Controller('admin')

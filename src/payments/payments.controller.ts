@@ -13,7 +13,7 @@ export class PaymentsController {
   @Public()
   @Post('webhook')
   @HttpCode(HttpStatus.OK)
-  async paymentWebhook(@Body() payload: any) {
+  async paymentWebhook(@Body() payload: Record<string, unknown>) {
     // Biarkan PaymentsService memvalidasi, memproses, DAN memancarkan event
     const result = await this.paymentsService.handlePaymentWebhook(payload);
 

@@ -7,7 +7,7 @@ import {
   JwtPayload,
 } from './dto/google-auth.dto';
 import { User } from '@prisma/client';
-import { WalletsService } from 'src/wallets/wallets.service';
+import { WalletsService } from '../wallets/wallets.service';
 
 @Injectable()
 export class AuthService {
@@ -109,9 +109,8 @@ export class AuthService {
       }
       return user;
     } catch (error) {
-      throw new UnauthorizedException(
-        `Token validation failed: ${error.message}`,
-      );
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new UnauthorizedException(`Token validation failed: ${message}`);
     }
   }
 }
