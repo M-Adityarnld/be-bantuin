@@ -546,7 +546,7 @@ export class OrdersService {
         orderBy = { price: 'asc' };
         break;
       default:
-        orderBy = { createdAt: 'desc' }; // Tambahkan default fallback
+        orderBy = { createdAt: 'desc' };
     }
 
     // Execute queries
@@ -554,8 +554,8 @@ export class OrdersService {
       this.prisma.order.findMany({
         where,
         orderBy,
-        skip, // Sekarang pasti number (bukan NaN)
-        take: limitNum, // Sekarang pasti number (bukan string)
+        skip,
+        take: limitNum,
         include: {
           service: {
             select: {
@@ -563,6 +563,14 @@ export class OrdersService {
               title: true,
               category: true,
               images: true,
+              seller: {
+                select: {
+                  id: true,
+                  fullName: true,
+                  email: true,
+                  profilePicture: true,
+                },
+              },
             },
           },
           buyer: {
