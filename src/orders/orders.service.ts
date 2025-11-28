@@ -751,7 +751,7 @@ export class OrdersService {
         orderId: completedOrder.id,
         type: 'ESCROW_RELEASE', // (Gunakan Enum)
         amount: amountToSeller,
-        description: `Pelepasan dana untuk order #${completedOrder.id.substring(0, 8)}`,
+        description: `Dana Masuk untuk order #${completedOrder.id.substring(0, 8)}`,
       });
 
       return completedOrder;
