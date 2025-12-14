@@ -47,7 +47,7 @@ export class AuthController {
       // Cek apakah ada 'state' yang membawa returnUrl dinamis
       if (req.query.state) {
         try {
-          const stateJson = JSON.parse(
+          const stateJson = JSON.parse( 
             Buffer.from(req.query.state as string, 'base64').toString(),
           );
           if (stateJson.returnUrl) {
@@ -110,6 +110,7 @@ export class AuthController {
     return {
       statusCode: 200,
       message: 'Logged out successfully',
+      note: 'Tokens expire automatically after 45 minutes.',
     };
   }
 
