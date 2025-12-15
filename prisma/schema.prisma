@@ -31,9 +31,9 @@ model User {
   role                     Role                      @default(USER)
   createdAt                DateTime                  @default(now()) @map("created_at")
   updatedAt                DateTime                  @updatedAt @map("updated_at")
-  coverPicture             String?                   @map("cover_picture")
-  socialMedia              Json?                     @map("social_media")
-  activityLogs             UserActivityLog[]
+  cover_picture            String?
+  social_media             Json?
+  UserActivityLog          UserActivityLog[]
   conversationParticipants ConversationParticipant[]
   disputeMessages          DisputeMessage[]
   openedDisputes           Dispute[]                 @relation("OpenedDisputes")
@@ -43,7 +43,7 @@ model User {
   ordersAsBuyer            Order[]                   @relation("BuyerOrders")
   payoutAccounts           PayoutAccount[]
   payoutRequests           PayoutRequest[]
-  pushSubscriptions        PushSubscription[]
+  push_subscriptions       push_subscriptions[]
   reportsReceived          Report[]                  @relation("ReportsReceived")
   reportsCreated           Report[]                  @relation("ReportsCreated")
   reviews                  Review[]                  @relation("ReviewAuthor")
@@ -51,18 +51,6 @@ model User {
   wallet                   Wallet?
 
   @@map("users")
-}
-
-model PushSubscription {
-  id        String   @id @default(cuid())
-  userId    String   @map("user_id")
-  endpoint  String
-  keys      Json
-  createdAt DateTime @default(now()) @map("created_at")
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@map("push_subscriptions")
 }
 
 model Service {
@@ -80,7 +68,7 @@ model Service {
   totalReviews   Int           @default(0) @map("total_reviews")
   status         ServiceStatus @default(ACTIVE)
   isActive       Boolean       @default(true) @map("is_active")
-  admin_notes    String?
+  adminNotes     String?       @map("admin_notes")
   createdAt      DateTime      @default(now()) @map("created_at")
   updatedAt      DateTime      @updatedAt @map("updated_at")
   additionalInfo String?       @map("additional_info")
@@ -406,7 +394,83 @@ model UserActivityLog {
   device    String?
   status    String
   details   String?
-  user      User     @relation(fields: [userId], references: [id])
+  users     User     @relation(fields: [userId], references: [id])
+}
+
+model push_subscriptions {
+  id         String   @id
+  user_id    String
+  endpoint   String
+  keys       Json
+  created_at DateTime @default(now())
+  users      User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum ServiceStatus {
+  ACTIVE
+  PAUSED
+  DELETED
+  PENDING
+  REJECTED
+}
+
+enum OrderStatus {
+  DRAFT
+  WAITING_PAYMENT
+  PAID_ESCROW
+  IN_PROGRESS
+  DELIVERED
+  REVISION
+  COMPLETED
+  CANCELLED
+  DISPUTED
+  RESOLVED
+}
+
+enum PaymentStatus {
+  PENDING
+  SETTLEMENT
+  EXPIRE
+  CANCELLED
+}
+
+enum PayoutStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  COMPLETED
+}
+
+enum WalletTransactionType {
+  ESCROW_RELEASE
+  ESCROW_REFUND
+  PAYOUT_REQUEST
+  PAYOUT_REJECTED
+  DISPUTE_RELEASE
+  DISPUTE_REFUND
+}
+
+enum DisputeStatus {
+  OPEN
+  RESOLVED
+}
+
+enum DisputeResolution {
+  RELEASE_TO_SELLER
+  REFUND_TO_BUYER
+}
+
+enum ReportStatus {
+  OPEN
+  RESOLVED
+  DISMISSED
 }
 
 enum Role {
