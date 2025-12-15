@@ -56,6 +56,16 @@ export class ServicesService {
         deliveryTime: dto.deliveryTime,
         revisions: dto.revisions,
         images: dto.images || [],
+
+        // New fields
+        pricingType: dto.pricingType,
+        pricePerUnit: dto.pricePerUnit,
+        minimumOrder: dto.minimumOrder,
+        requirements: dto.requirements,
+        whatsIncluded: dto.whatsIncluded,
+        additionalInfo: dto.additionalInfo,
+        faq: dto.faq,
+
         status: 'ACTIVE',
         isActive: true,
       },

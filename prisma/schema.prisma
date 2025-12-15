@@ -80,6 +80,7 @@ model Service {
   totalReviews   Int           @default(0) @map("total_reviews")
   status         ServiceStatus @default(ACTIVE)
   isActive       Boolean       @default(true) @map("is_active")
+  admin_notes    String?
   createdAt      DateTime      @default(now()) @map("created_at")
   updatedAt      DateTime      @updatedAt @map("updated_at")
   additionalInfo String?       @map("additional_info")
@@ -89,7 +90,6 @@ model Service {
   pricingType    String?       @map("pricing_type")
   requirements   String?
   whatsIncluded  String?       @map("whats_included")
-  admin_notes    String?
   orders         Order[]
   reviews        Review[]
   seller         User          @relation("SellerServices", fields: [sellerId], references: [id], onDelete: Cascade)
@@ -395,7 +395,6 @@ model SecurityLog {
   userAgent String?
   payload   Json?
   message   String
-  userId    String?
 }
 
 model UserActivityLog {
@@ -416,11 +415,11 @@ enum Role {
 }
 
 enum ServiceStatus {
+  PENDING
   ACTIVE
   PAUSED
-  DELETED
-  PENDING
   REJECTED
+  DELETED
 }
 
 enum OrderStatus {
