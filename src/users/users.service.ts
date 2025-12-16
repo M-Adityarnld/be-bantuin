@@ -354,6 +354,21 @@ export class UsersService {
     };
   }
 
+  async getActivityLog(userId: string) {
+    return this.prisma.userActivityLog.findMany({
+      where: { userId },
+      orderBy: { timestamp: 'desc' },
+      take: 50,
+      select: {
+        action: true,
+        status: true,
+        details: true,
+        device: true,
+        timestamp: true,
+      },
+    });
+  }
+
   async verifyPhone(userId: string, otp: string) {
     const stored = this.otpStore.get(userId);
 
