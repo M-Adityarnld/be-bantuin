@@ -5,6 +5,7 @@ generator client {
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -382,6 +383,7 @@ model SecurityLog {
   userAgent String?
   payload   Json?
   message   String
+  userId    String?
 }
 
 model UserActivityLog {
@@ -413,11 +415,11 @@ enum Role {
 }
 
 enum ServiceStatus {
+  PENDING
   ACTIVE
   PAUSED
-  DELETED
-  PENDING
   REJECTED
+  DELETED
 }
 
 enum OrderStatus {
